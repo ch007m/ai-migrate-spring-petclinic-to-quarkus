@@ -17,18 +17,14 @@
 package org.springframework.samples.petclinic.owner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -39,7 +35,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * @author Colin But
  */
 @ExtendWith(MockitoExtension.class)
-@DisabledInNativeImage
 class PetTypeFormatterTests {
 
 	@Mock
@@ -49,36 +44,33 @@ class PetTypeFormatterTests {
 
 	@BeforeEach
 	void setup() {
-		this.petTypeFormatter = new PetTypeFormatter(types);
+		this.petTypeFormatter = new PetTypeFormatter();
+		this.petTypeFormatter.types = types;
 	}
 
 	@Test
 	void testPrint() {
 		PetType petType = new PetType();
 		petType.setName("Hamster");
-		String petTypeName = this.petTypeFormatter.print(petType, Locale.ENGLISH);
+		String petTypeName = this.petTypeFormatter.print(petType);
 		assertThat(petTypeName).isEqualTo("Hamster");
 	}
 
 	@Test
-	void shouldParse() throws ParseException {
+	void shouldParse() {
 		given(types.findPetTypes()).willReturn(makePetTypes());
-		PetType petType = petTypeFormatter.parse("Bird", Locale.ENGLISH);
+		PetType petType = petTypeFormatter.parse("Bird");
 		assertThat(petType.getName()).isEqualTo("Bird");
 	}
 
 	@Test
-	void shouldThrowParseException() {
+	void shouldThrowExceptionOnParseFailure() {
 		given(types.findPetTypes()).willReturn(makePetTypes());
-		Assertions.assertThrows(ParseException.class, () -> {
-			petTypeFormatter.parse("Fish", Locale.ENGLISH);
+		assertThrows(IllegalArgumentException.class, () -> {
+			petTypeFormatter.parse("Fish");
 		});
 	}
 
-	/**
-	 * Helper method to produce some sample pet types just for test purpose
-	 * @return {@link Collection} of {@link PetType}
-	 */
 	private List<PetType> makePetTypes() {
 		List<PetType> petTypes = new ArrayList<>();
 		petTypes.add(new PetType() {
