@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.owner;
 
 import java.net.URI;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
@@ -25,7 +26,6 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
-import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
@@ -54,7 +54,7 @@ public class OwnerController {
 	@CheckedTemplate(requireTypeSafeExpressions = false)
 	public static class Templates {
 
-		public static native TemplateInstance createOrUpdateOwnerForm(Owner owner, String error);
+		public static native TemplateInstance createOrUpdateOwnerForm(Owner owner, List<String> errors);
 
 		public static native TemplateInstance findOwners(Owner owner);
 
@@ -64,6 +64,8 @@ public class OwnerController {
 		public static native TemplateInstance ownerDetails(Owner owner);
 
 	}
+
+	private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages.messages");
 
 	@Inject
 	OwnerRepository owners;
@@ -75,7 +77,7 @@ public class OwnerController {
 	@Path("/new")
 	@Produces(MediaType.TEXT_HTML)
 	public TemplateInstance initCreationForm() {
-		return Templates.createOrUpdateOwnerForm(new Owner(), null);
+		return Templates.createOrUpdateOwnerForm(new Owner(), List.of());
 	}
 
 	@POST
@@ -95,8 +97,10 @@ public class OwnerController {
 
 		var violations = validator.validate(owner);
 		if (!violations.isEmpty()) {
-			return Response.ok(Templates.createOrUpdateOwnerForm(owner, "There was an error in creating the owner."))
-				.build();
+			List<String> errors = violations.stream()
+				.map(v -> resolveMessage(v.getMessage()))
+				.toList();
+			return Response.ok(Templates.createOrUpdateOwnerForm(owner, errors)).build();
 		}
 
 		this.owners.save(owner);
@@ -142,7 +146,7 @@ public class OwnerController {
 	public TemplateInstance initUpdateOwnerForm(@PathParam("ownerId") int ownerId) {
 		Owner owner = this.owners.findById(ownerId)
 			.orElseThrow(() -> new IllegalArgumentException("Owner not found with id: " + ownerId));
-		return Templates.createOrUpdateOwnerForm(owner, null);
+		return Templates.createOrUpdateOwnerForm(owner, List.of());
 	}
 
 	@POST
@@ -165,13 +169,24 @@ public class OwnerController {
 
 		var violations = validator.validate(owner);
 		if (!violations.isEmpty()) {
-			return Response
-				.ok(Templates.createOrUpdateOwnerForm(owner, "There was an error in updating the owner."))
-				.build();
+			List<String> errors = violations.stream()
+				.map(v -> resolveMessage(v.getMessage()))
+				.toList();
+			return Response.ok(Templates.createOrUpdateOwnerForm(owner, errors)).build();
 		}
 
 		this.owners.save(owner);
 		return Response.seeOther(URI.create("/owners/" + ownerId)).build();
+	}
+
+	private String resolveMessage(String message) {
+		if (message.startsWith("{") && message.endsWith("}")) {
+			String key = message.substring(1, message.length() - 1);
+			if (MESSAGES.containsKey(key)) {
+				return MESSAGES.getString(key);
+			}
+		}
+		return message;
 	}
 
 	@GET
