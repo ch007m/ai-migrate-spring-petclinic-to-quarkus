@@ -120,6 +120,7 @@ jobs:
           git config --global user.name "OpenCode Quarkus Bot"
           git config --global user.email "quarkus-bot@opencode.ai"
           
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           git add .
           git commit -m "OpenCode migration: $PROJECT_NAME"
           git push origin ${{ steps.branch-math.outputs.branch_name }}
