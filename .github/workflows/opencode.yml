@@ -79,10 +79,10 @@ jobs:
           git clone https://github.com/quarkusio/quarkus-skills && cd quarkus-skills
           gh pr checkout 4
           cp -rp "skills/migrate-spring-to-quarkus/." "$HOME/.config/opencode/skills/migrate-spring-to-quarkus/"
-          ls -la "$HOME/.config/opencode/skills/migrate-spring-to-quarkus/"
+          #ls -la "$HOME/.config/opencode/skills/migrate-spring-to-quarkus/"
           
           opencode -v
         
-          opencode run "Migrate this Spring Boot Application to Petclinic. Use as strategy: spring compat." 
+          opencode run "Migrate this Spring Boot Application to Petclinic. Use as strategy: spring compat. Skip git management and proceed with migration." 
           
           opencode stats
