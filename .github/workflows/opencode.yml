@@ -81,4 +81,4 @@ jobs:
           opencode -v
           opencode --list-skills
           
-          opencode run "Can you tell me what this project is about ?" 
+          opencode run "Can you tell me what this java application is about ?" 
