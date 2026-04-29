@@ -92,9 +92,6 @@ jobs:
           git clone https://github.com/quarkusio/quarkus-skills && cd quarkus-skills
           gh pr checkout 4
           cp -rp "skills/migrate-spring-to-quarkus/." "$HOME/.config/opencode/skills/migrate-spring-to-quarkus/"
-          #ls -la "$HOME/.config/opencode/skills/migrate-spring-to-quarkus/"
-          
-          echo "Message: ${{ steps.parse-comment.outputs.prompt }}"
           
           opencode -v
         
