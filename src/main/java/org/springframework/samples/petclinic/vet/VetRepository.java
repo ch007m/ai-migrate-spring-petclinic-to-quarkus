@@ -16,13 +16,13 @@
 package org.springframework.samples.petclinic.vet;
 
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Collection;
+import jakarta.transaction.Transactional;
+
+import java.util.List;
 
 /**
  * Repository class for <code>Vet</code> domain objects All method names are compliant
@@ -35,24 +35,23 @@ import java.util.Collection;
  * @author Sam Brannen
  * @author Michael Isvy
  */
-public interface VetRepository extends Repository<Vet, Integer> {
+public interface VetRepository extends JpaRepository<Vet, Integer> {
 
 	/**
 	 * Retrieve all <code>Vet</code>s from the data store.
 	 * @return a <code>Collection</code> of <code>Vet</code>s
 	 */
-	@Transactional(readOnly = true)
+	@Transactional
 	@Cacheable("vets")
-	Collection<Vet> findAll() throws DataAccessException;
+	List<Vet> findAll();
 
 	/**
 	 * Retrieve all <code>Vet</code>s from data store in Pages
 	 * @param pageable
 	 * @return
-	 * @throws DataAccessException
 	 */
-	@Transactional(readOnly = true)
+	@Transactional
 	@Cacheable("vets")
-	Page<Vet> findAll(Pageable pageable) throws DataAccessException;
+	Page<Vet> findAll(Pageable pageable);
 
 }
