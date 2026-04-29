@@ -1,10 +1,11 @@
 name: opencode
 
 on:
-  issue_comment:
-    types: [created]
-  pull_request_review_comment:
-    types: [created]
+  workflow_dispatch:
+  #issue_comment:
+  #  types: [created]
+  #pull_request_review_comment:
+  #  types: [created]
 
 jobs:
   opencode:
@@ -25,11 +26,46 @@ jobs:
         with:
           persist-credentials: false
 
+      #- name: Run opencode
+      #  uses: anomalyco/opencode/github@latest
+      #  env:
+      #    GOOGLE_VERTEX_PROJECT: ${{ secrets.GOOGLE_VERTEX_PROJECT }}
+      #    GOOGLE_VERTEX_LOCATION: ${{ secrets.GOOGLE_VERTEX_LOCATION }}
+      #    GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+      #  with:
+      #    model: google-vertex-anthropic/claude-opus-4-6@default
+
+      - name: Get opencode version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(curl -sf https://api.github.com/repos/anomalyco/opencode/releases/latest | grep -o '"tag_name": *"[^"]*"' | cut -d'"' -f4)
+          echo "version=${VERSION:-latest}" >> $GITHUB_OUTPUT
+
+      - name: Cache opencode
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.opencode/bin
+          key: opencode-${{ runner.os }}-${{ runner.arch }}-${{ steps.version.outputs.version }}
+
+      - name: Install opencode
+        if: steps.cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: curl -fsSL https://opencode.ai/install | bash
+
+      - name: Add opencode to PATH
+        shell: bash
+        run: echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+
       - name: Run opencode
-        uses: anomalyco/opencode/github@latest
+        shell: bash
+        id: run_opencode
         env:
+          MODEL: google-vertex-anthropic/claude-opus-4-6@default
           GOOGLE_VERTEX_PROJECT: ${{ secrets.GOOGLE_VERTEX_PROJECT }}
           GOOGLE_VERTEX_LOCATION: ${{ secrets.GOOGLE_VERTEX_LOCATION }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-        with:
-          model: google-vertex-anthropic/claude-opus-4-6@default
+        run: |
+          opencode -v
+          opencode run "Can you tell me what this project is about ?" 
