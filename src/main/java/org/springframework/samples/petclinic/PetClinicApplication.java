@@ -16,21 +16,19 @@
 
 package org.springframework.samples.petclinic;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ImportRuntimeHints;
+import io.quarkus.runtime.Quarkus;
+import io.quarkus.runtime.annotations.QuarkusMain;
 
 /**
- * PetClinic Spring Boot Application.
+ * PetClinic Quarkus Application.
  *
  * @author Dave Syer
  */
-@SpringBootApplication
-@ImportRuntimeHints(PetClinicRuntimeHints.class)
+@QuarkusMain
 public class PetClinicApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PetClinicApplication.class, args);
+		Quarkus.run(args);
 	}
 
 }
