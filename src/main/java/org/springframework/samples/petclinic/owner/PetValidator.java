@@ -15,50 +15,43 @@
  */
 package org.springframework.samples.petclinic.owner;
 
-import org.springframework.util.StringUtils;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * <code>Validator</code> for <code>Pet</code> forms.
- * <p>
- * We're not using Bean Validation annotations here because it is easier to define such
- * validation rule in Java.
- * </p>
+ * Validator for {@link Pet} forms. No longer implements Spring's Validator interface.
+ * Instead, provides a simple validate method that returns a list of error messages.
  *
  * @author Ken Krebs
  * @author Juergen Hoeller
  */
-public class PetValidator implements Validator {
+public class PetValidator {
 
-	private static final String REQUIRED = "required";
-
-	@Override
-	public void validate(Object obj, Errors errors) {
-		Pet pet = (Pet) obj;
+	/**
+	 * Validate a Pet and return a list of error messages. An empty list means valid.
+	 * @param pet the pet to validate
+	 * @return list of error messages
+	 */
+	public List<String> validate(Pet pet) {
+		List<String> errors = new ArrayList<>();
 		String name = pet.getName();
+
 		// name validation
-		if (!StringUtils.hasText(name)) {
-			errors.rejectValue("name", REQUIRED, REQUIRED);
+		if (name == null || name.isBlank()) {
+			errors.add("Name is required");
 		}
 
 		// type validation
 		if (pet.isNew() && pet.getType() == null) {
-			errors.rejectValue("type", REQUIRED, REQUIRED);
+			errors.add("Type is required");
 		}
 
 		// birth date validation
 		if (pet.getBirthDate() == null) {
-			errors.rejectValue("birthDate", REQUIRED, REQUIRED);
+			errors.add("Birth date is required");
 		}
-	}
 
-	/**
-	 * This Validator validates *just* Pet instances
-	 */
-	@Override
-	public boolean supports(Class<?> clazz) {
-		return Pet.class.isAssignableFrom(clazz);
+		return errors;
 	}
 
 }

@@ -15,48 +15,42 @@
  */
 package org.springframework.samples.petclinic.owner;
 
-import org.springframework.format.Formatter;
-import org.springframework.stereotype.Component;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
-import java.text.ParseException;
 import java.util.Collection;
-import java.util.Locale;
 import java.util.Objects;
 
 /**
- * Instructs Spring MVC on how to parse and print elements of type 'PetType'. Starting
- * from Spring 3.0, Formatters have come as an improvement in comparison to legacy
- * PropertyEditors. See the following links for more details: - The Spring ref doc:
- * https://docs.spring.io/spring-framework/docs/current/spring-framework-reference/core.html#format
+ * Helper to look up PetType by name. Replaces the Spring MVC Formatter.
  *
  * @author Mark Fisher
  * @author Juergen Hoeller
  * @author Michael Isvy
  */
-@Component
-public class PetTypeFormatter implements Formatter<PetType> {
+@Singleton
+public class PetTypeFormatter {
 
 	private final PetTypeRepository types;
 
+	@Inject
 	public PetTypeFormatter(PetTypeRepository types) {
 		this.types = types;
 	}
 
-	@Override
-	public String print(PetType petType, Locale locale) {
+	public String print(PetType petType) {
 		String name = petType.getName();
 		return name != null ? name : "<null>";
 	}
 
-	@Override
-	public PetType parse(String text, Locale locale) throws ParseException {
+	public PetType parse(String text) {
 		Collection<PetType> findPetTypes = this.types.findPetTypes();
 		for (PetType type : findPetTypes) {
 			if (Objects.equals(type.getName(), text)) {
 				return type;
 			}
 		}
-		throw new ParseException("type not found: " + text, 0);
+		throw new IllegalArgumentException("PetType not found: " + text);
 	}
 
 }
