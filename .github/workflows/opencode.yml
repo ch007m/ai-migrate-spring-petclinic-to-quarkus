@@ -66,6 +66,7 @@ jobs:
       - name: Run opencode
         id: run_opencode
         env:
+          GH_TOKEN: ${{ github.token }}
           MODEL: google-vertex-anthropic/claude-opus-4-6@default
           GOOGLE_VERTEX_PROJECT: ${{ secrets.GOOGLE_VERTEX_PROJECT }}
           GOOGLE_VERTEX_LOCATION: ${{ secrets.GOOGLE_VERTEX_LOCATION }}
