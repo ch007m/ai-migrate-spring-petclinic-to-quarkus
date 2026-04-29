@@ -17,9 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-      contents: read
-      pull-requests: read
+      contents: write
+      pull-requests: write
       issues: read
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -36,14 +37,23 @@ jobs:
         with:
           credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}'
 
-      #- name: Run opencode
-      #  uses: anomalyco/opencode/github@latest
-      #  env:
-      #    GOOGLE_VERTEX_PROJECT: ${{ secrets.GOOGLE_VERTEX_PROJECT }}
-      #    GOOGLE_VERTEX_LOCATION: ${{ secrets.GOOGLE_VERTEX_LOCATION }}
-      #    GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-      #  with:
-      #    model: google-vertex-anthropic/claude-opus-4-6@default
+      - name: Calculate Next Branch Name
+        id: branch-math
+        run: |
+          # Get the current PR number from the event
+          PR_NUMBER=${{ github.event.issue.number }}
+          NEXT_NUM=$((PR_NUMBER + 1))
+          
+          # Format with leading zero if needed (run-01, run-02...)
+          BRANCH_NAME=$(printf "migration/run-%02d" $NEXT_NUM)
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup New Branch
+        run: |
+          echo "Branch name: ${{ steps.branch-math.outputs.branch_name }}"
+          git checkout -b ${{ steps.branch-math.outputs.branch_name }}
 
       - name: Get opencode version
         id: version
@@ -78,6 +88,7 @@ jobs:
 
       - name: Run opencode
         id: run_opencode
+        continue-on-error: false
         env:
           GH_TOKEN: ${{ github.token }}
           MODEL: google-vertex-anthropic/claude-opus-4-6@default
@@ -94,7 +105,28 @@ jobs:
           cp -rp "skills/migrate-spring-to-quarkus/." "$HOME/.config/opencode/skills/migrate-spring-to-quarkus/"
           
           opencode -v
-        
           opencode run -m ${{ env.MODEL }} "${{ steps.parse-comment.outputs.prompt }}"
-          
           opencode stats
+
+      - name: Push and Create PR
+        if: success()
+        run: |
+          # Extract 'repo-name' from 'owner/repo-name'
+          PROJECT_NAME=${GITHUB_REPOSITORY##*/}
+    
+          git config --global user.name "OpenCode Quarkus Bot"
+          git config --global user.email "quarkus-bot@opencode.ai"
+          
+          git add .
+          git commit -m "OpenCode migration: $PROJECT_NAME"
+          git push origin ${{ steps.branch-math.outputs.branch_name }}
+          
+          # Create Draft PR using GitHub CLI
+          gh pr create \
+            --title "Migration Run: ${{ steps.branch-math.outputs.branch_name }}" \
+            --body "Automated migration triggered by PR #${{ github.event.issue.number }}. Command used: ${{ steps.parse.outputs.command }}" \
+            --draft \
+            --base main \
+            --head ${{ steps.branch-math.outputs.branch_name }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
