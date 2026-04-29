@@ -80,6 +80,5 @@ jobs:
           ls -la "$HOME/.config/opencode/skills/migrate-spring-to-quarkus/"
           
           opencode -v
-          opencode --list-skills
-          
-          opencode run "Can you tell me what this java application is about ?" 
+        
+          opencode run "Migrate this Spring Boot Application to Petclinic. Use as strategy: spring compat." 
