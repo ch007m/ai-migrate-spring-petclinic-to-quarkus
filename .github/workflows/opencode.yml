@@ -26,6 +26,11 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: auth
+        uses: 'google-github-actions/auth@v3'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CLOUD_CREDENTIALS }}'
+
       #- name: Run opencode
       #  uses: anomalyco/opencode/github@latest
       #  env:
@@ -59,13 +64,15 @@ jobs:
         run: echo "$HOME/.opencode/bin" >> $GITHUB_PATH
 
       - name: Run opencode
-        shell: bash
         id: run_opencode
         env:
           MODEL: google-vertex-anthropic/claude-opus-4-6@default
           GOOGLE_VERTEX_PROJECT: ${{ secrets.GOOGLE_VERTEX_PROJECT }}
           GOOGLE_VERTEX_LOCATION: ${{ secrets.GOOGLE_VERTEX_LOCATION }}
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          #GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
         run: |
+          ls -la
+          echo "GOOGLE_VERTEX_PROJECT: $GOOGLE_VERTEX_PROJECT"
+          echo "GOOGLE_VERTEX_LOCATION: $GOOGLE_VERTEX_LOCATION"
           opencode -v
-          opencode run "Can you tell me what this project is about ?" 
+          #opencode run "Can you tell me what this project is about ?" 
