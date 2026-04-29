@@ -69,10 +69,7 @@ jobs:
           MODEL: google-vertex-anthropic/claude-opus-4-6@default
           GOOGLE_VERTEX_PROJECT: ${{ secrets.GOOGLE_VERTEX_PROJECT }}
           GOOGLE_VERTEX_LOCATION: ${{ secrets.GOOGLE_VERTEX_LOCATION }}
-          #GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          # The env variable GOOGLE_APPLICATION_CREDENTIALS si set by the action google-github-actions/auth
         run: |
-          ls -la
-          echo "GOOGLE_VERTEX_PROJECT: $GOOGLE_VERTEX_PROJECT"
-          echo "GOOGLE_VERTEX_LOCATION: $GOOGLE_VERTEX_LOCATION"
           opencode -v
-          #opencode run "Can you tell me what this project is about ?" 
+          opencode run "Can you tell me what this project is about ?" 
