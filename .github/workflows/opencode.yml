@@ -71,5 +71,14 @@ jobs:
           GOOGLE_VERTEX_LOCATION: ${{ secrets.GOOGLE_VERTEX_LOCATION }}
           # The env variable GOOGLE_APPLICATION_CREDENTIALS si set by the action google-github-actions/auth
         run: |
+          mkdir -p ~/.config/opencode/skills
+          
+          git clone https://github.com/quarkusio/quarkus-skills && cd quarkus-skills
+          gh pr checkout 4
+          cp -rp "skills/migrate-spring-to-quarkus/." "~/.config/opencode/skills/migrate-spring-to-quarkus/"
+          ls -la ~/.config/opencode/skills/migrate-spring-to-quarkus/
+          
           opencode -v
+          opencode --list-skills
+          
           opencode run "Can you tell me what this project is about ?" 
