@@ -68,7 +68,7 @@ jobs:
         run: |
             # Extract everything after 'opencode run '
             RAW_COMMENT="${{ github.event.comment.body }}"
-            CMD=$(echo "$RAW_COMMENT" | sed 's/oc//')
+            CMD=$(echo "$RAW_COMMENT" | sed 's/\/oc. //')
             echo "prompt=$CMD" >> $GITHUB_OUTPUT
 
       - name: Run opencode
@@ -88,6 +88,8 @@ jobs:
           gh pr checkout 4
           cp -rp "skills/migrate-spring-to-quarkus/." "$HOME/.config/opencode/skills/migrate-spring-to-quarkus/"
           #ls -la "$HOME/.config/opencode/skills/migrate-spring-to-quarkus/"
+          
+          echo "Message: ${{ steps.parse-prompt.outputs.command }}"
           
           opencode -v
         
