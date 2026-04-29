@@ -104,6 +104,9 @@ jobs:
           gh pr checkout 4
           cp -rp "skills/migrate-spring-to-quarkus/." "$HOME/.config/opencode/skills/migrate-spring-to-quarkus/"
           
+          cd ..
+          rm -rf quarkus-skills
+          
           opencode -v
           opencode run -m ${{ env.MODEL }} "${{ steps.parse-comment.outputs.prompt }}"
           opencode stats
