@@ -95,7 +95,6 @@ jobs:
           
           opencode -v
         
-          # Migrate this Spring Boot Application to Petclinic. Use as strategy: spring compat. Skip git management and proceed with migration." 
           opencode run -m ${{ env.MODEL }} "${{ steps.parse-comment.outputs.prompt }}"
           
           opencode stats
