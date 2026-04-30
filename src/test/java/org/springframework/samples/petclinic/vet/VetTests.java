@@ -15,27 +15,38 @@
  */
 package org.springframework.samples.petclinic.vet;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import org.junit.jupiter.api.Test;
-import org.springframework.util.SerializationUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author Dave Syer
- */
 class VetTests {
 
 	@Test
-	void serialization() {
+	void testSerialization() throws Exception {
 		Vet vet = new Vet();
 		vet.setFirstName("Zaphod");
 		vet.setLastName("Beeblebrox");
 		vet.setId(123);
-		@SuppressWarnings("deprecation")
-		Vet other = (Vet) SerializationUtils.deserialize(SerializationUtils.serialize(vet));
-		assertThat(other.getFirstName()).isEqualTo(vet.getFirstName());
-		assertThat(other.getLastName()).isEqualTo(vet.getLastName());
-		assertThat(other.getId()).isEqualTo(vet.getId());
+
+		// Serialize
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ObjectOutputStream oos = new ObjectOutputStream(baos);
+		oos.writeObject(vet);
+		oos.close();
+
+		// Deserialize
+		ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+		ObjectInputStream ois = new ObjectInputStream(bais);
+		Vet deserialized = (Vet) ois.readObject();
+
+		assertThat(deserialized.getFirstName()).isEqualTo(vet.getFirstName());
+		assertThat(deserialized.getLastName()).isEqualTo(vet.getLastName());
+		assertThat(deserialized.getId()).isEqualTo(vet.getId());
 	}
 
 }
