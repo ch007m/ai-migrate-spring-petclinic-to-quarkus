@@ -108,14 +108,15 @@ jobs:
           rm -rf quarkus-skills
           
           opencode -v
-          #opencode run -m ${{ env.MODEL }} "${{ steps.parse-comment.outputs.prompt }}"
-          #opencode stats
-          echo "# Summary report" > migration-report.md
-          echo "" >> migration-report.md
-          echo "### Step 1" >> migration-report.md
-          echo "" >> migration-report.md
-          echo "### Step 2" >> migration-report.md
-          echo "---------------" >> migration-report.md
+          opencode run -m ${{ env.MODEL }} "${{ steps.parse-comment.outputs.prompt }}"
+          opencode stats
+          
+          #echo "# Summary report" > migration-report.md
+          #echo "" >> migration-report.md
+          #echo "### Step 1" >> migration-report.md
+          #echo "" >> migration-report.md
+          #echo "### Step 2" >> migration-report.md
+          #echo "---------------" >> migration-report.md
 
       - name: Prepare PR Description
         id: pr_desc
@@ -142,21 +143,21 @@ jobs:
           # Extract 'repo-name' from 'owner/repo-name'
           PROJECT_NAME=${GITHUB_REPOSITORY##*/}
           echo "PR description: $PR_BODY"
-      #
-      #    git config --global user.name "OpenCode Quarkus Bot"
-      #    git config --global user.email "quarkus-bot@opencode.ai"
-      #
-      #    git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-      #    git add .
-      #    git commit -m "OpenCode migration: $PROJECT_NAME"
-      #    git push origin ${{ steps.branch-math.outputs.branch_name }}
-      #
-      #    # Create Draft PR using GitHub CLI
-      #    gh pr create \
-      #      --title "Migration Run: ${{ steps.branch-math.outputs.branch_name }}" \
-      #      --body "$PR_BODY" \
-      #      --draft \
-      #      --base main \
-      #      --head ${{ steps.branch-math.outputs.branch_name }}
-      #  env:
-      #    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+          git config --global user.name "OpenCode Quarkus Bot"
+          git config --global user.email "quarkus-bot@opencode.ai"
+      
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git add .
+          git commit -m "OpenCode migration: $PROJECT_NAME"
+          git push origin ${{ steps.branch-math.outputs.branch_name }}
+      
+          # Create Draft PR using GitHub CLI
+          gh pr create \
+            --title "Migration Run: ${{ steps.branch-math.outputs.branch_name }}" \
+            --body "$PR_BODY" \
+            --draft \
+            --base main \
+            --head ${{ steps.branch-math.outputs.branch_name }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
