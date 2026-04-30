@@ -110,7 +110,12 @@ jobs:
           opencode -v
           #opencode run -m ${{ env.MODEL }} "${{ steps.parse-comment.outputs.prompt }}"
           #opencode stats
-          echo "## Summary report" > migration-report.md
+          echo "# Summary report" > migration-report.md
+          echo "" >> migration-report.md
+          echo "### Step 1" >> migration-report.md
+          echo "" >> migration-report.md
+          echo "### Step 2" >> migration-report.md
+          echo "---------------" >> migration-report.md
 
       - name: Prepare PR Description
         id: pr_desc
