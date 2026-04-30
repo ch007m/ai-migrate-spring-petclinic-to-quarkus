@@ -40,8 +40,8 @@ jobs:
       - name: Calculate Next Branch Name
         id: branch-math
         run: |
-          # Get the current PR number from the event
-          PR_NUMBER=${{ github.event.issue.number }}
+          # Get the last PR number
+          PR_NUMBER=$(gh pr list --limit 1 --state all --json number --jq '.[0].number')
           NEXT_NUM=$((PR_NUMBER + 1))
           
           # Format with leading zero if needed (run-01, run-02...)
@@ -111,6 +111,29 @@ jobs:
           opencode run -m ${{ env.MODEL }} "${{ steps.parse-comment.outputs.prompt }}"
           opencode stats
 
+      - name: Prepare PR Description
+        id: pr_desc
+        run: |
+          {
+            echo "PR_BODY<<EOF"
+            echo "## OpenCode Migration Report"
+            echo "Automated migration triggered by PR #${{ github.event.issue.number }}."
+            echo ""
+            echo "### Prompt Request"
+            echo "> ${{ steps.parse.outputs.command }}"
+            echo ""
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+          
+          # Append the actual content of the MD file
+          if [ -f "migration-report.md" ]; then
+            cat migration-report.md >> $GITHUB_ENV
+          else
+            echo "No detailed report found." >> $GITHUB_ENV
+          fi
+          
+          echo "EOF" >> $GITHUB_ENV
+
       - name: Push and Create PR
         if: success()
         run: |
@@ -128,7 +151,7 @@ jobs:
           # Create Draft PR using GitHub CLI
           gh pr create \
             --title "Migration Run: ${{ steps.branch-math.outputs.branch_name }}" \
-            --body "Automated migration triggered by PR #${{ github.event.issue.number }}. Command used: ${{ steps.parse.outputs.command }}" \
+            --body "$PR_BODY" \
             --draft \
             --base main \
             --head ${{ steps.branch-math.outputs.branch_name }}
