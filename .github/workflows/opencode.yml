@@ -126,7 +126,7 @@ jobs:
           echo "Automated migration triggered by PR #3." >> "$GITHUB_ENV"
           echo "" >> "$GITHUB_ENV"
           echo "### Prompt Request" >> "$GITHUB_ENV"
-          echo "> ${{ steps.parse.outputs.command }}" >> "$GITHUB_ENV"
+          echo "> ${{ steps.parse-comment.outputs.prompt }}" >> "$GITHUB_ENV"
           echo "" >> "$GITHUB_ENV"
           
           if [ -f "migration-report.md" ]; then
